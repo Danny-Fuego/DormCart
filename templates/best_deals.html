@@ -1,0 +1,255 @@
+{% extends "layout.html" %}
+
+{% block extra_css %}
+    <style>
+        /* Grid layout for deal cards */
+        .grid {
+            display: grid;
+            gap: 18px;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+        }
+
+        /* Individual product card */
+        .card {
+            background: rgba(255,255,255,0.12);
+            border: 1px solid rgba(255,255,255,0.28);
+            border-radius: 16px;
+            backdrop-filter: blur(10px); 
+            -webkit-backdrop-filter: blur(10px);
+            padding: 12px;
+            display: flex; 
+            flex-direction: column; 
+            gap: 10px;
+            transition: transform .15s ease, box-shadow .15s ease;
+            cursor: pointer;
+        }
+
+        .card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0px 10px 24px rgba(0,0,0,.12);
+        }
+
+        /* Product image container */
+        .thumb {
+            position: relative;
+            aspect-ratio: 4/3;
+            overflow: hidden;
+            border-radius: 12px;
+            background: linear-gradient(35deg, #eff3ff, #e6ecff);
+            display: grid;
+            place-items: center;
+            color: #6371a6;
+            font-weight: 700;
+        }
+
+        .thumb img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+        }
+
+        .title {
+            margin: 4px 2px 0; 
+            font-size: 16px; 
+            color: #000; 
+            font-weight: 700;
+        }
+
+        .meta { 
+            margin: 0 2px; 
+            font-size: 13px; 
+            color: rgba(0,0,0,.85); 
+        }
+
+        .row {
+            display: flex; 
+            align-items: center; 
+            justify-content: space-between; 
+            gap: 10px; 
+            margin-top: 4px;
+        }
+
+        .price {
+            color: #000; 
+            font-weight: 800; 
+            font-size: 18px;
+        }
+
+        .btn {
+            border:0; 
+            background:var(--primary); 
+            color:#fff; 
+            padding:8px 12px; 
+            border-radius:10px; 
+            font-weight:600; 
+            cursor:pointer;
+        }
+
+        .btn:hover {
+            background: var(--primary-600);
+        }
+
+        /* Disabled state reused across the app */
+        .btn:disabled {
+            opacity: 0.55;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        /* Responsive adjustments for smaller screens */
+        @media (max-width: 720px) {
+            main.page {
+                padding: 40px 20px 40px;
+                width: min(80vw, 800px); 
+            }
+
+            .section-title {
+                margin: 0 0 12px;
+                text-align: center;
+            }
+
+            .deal-section h2 {
+                text-align: center;
+            }
+        }
+    </style>
+{% endblock %}
+
+{% block body %}
+    <main class="page">
+        <h1 class="section-title">Grab a deal now!</h1>
+
+        {# Product buckets are passed in from the backend based on price ranges #}
+
+        <section class="deal-section">
+            <h2 class="deal-title">Under $5!</h2>
+
+            {% if under_5 and under_5|length > 0 %}
+                <div class="grid">
+                    {% for p in under_5 %}
+                        <!-- Entire card is clickable except the button -->
+                        <article class="card"
+                                 data-url="{{ url_for('product_detail', product_id=p['id']) }}"
+                                 onclick="window.location.href=this.dataset.url;">
+                            <div class="thumb">
+                                {% if p['main_image'] %}
+                                    <img src="{{ p['main_image'] }}" alt="{{ p['title'] }}">
+                                {% else %}
+                                    No image
+                                {% endif %}
+                            </div>
+
+                            <h3 class="title">{{ p["title"] }}</h3>
+
+                            <p class="meta">
+                                {{ p["condition"] }}
+                                {% if p["color"] %} • {{ p["color"] }}{% endif %}
+                                {% if p["category"] %} • {{ p["category"] }}{% endif %}
+                            </p>
+
+                            <div class="row">
+                                <span class="price">${{ "%.2f"|format(p["price"]) }}</span>
+
+                                <!-- Stop propagation so clicking the button doesn't trigger navigation -->
+                                <form action="{{ url_for('cart_add', product_id=p['id']) }}" method="post">
+                                    <button class="btn" type="submit" onclick="event.stopPropagation();">
+                                        Add to Cart
+                                    </button>
+                                </form>
+                            </div>
+                        </article>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <!-- Friendly fallback if no items match this price range -->
+                <p class="meta">No deals available under $5 right now.</p>
+            {% endif %}
+        </section>
+
+        <section class="deal-section">
+            <h2 class="deal-title">Under $10!</h2>
+
+            {% if under_10 and under_10|length > 0 %}
+                <div class="grid">
+                    {% for p in under_10 %}
+                        <article class="card"
+                                 data-url="{{ url_for('product_detail', product_id=p['id']) }}"
+                                 onclick="window.location.href=this.dataset.url;">
+                            <div class="thumb">
+                                {% if p['main_image'] %}
+                                    <img src="{{ p['main_image'] }}" alt="{{ p['title'] }}">
+                                {% else %}
+                                    No image
+                                {% endif %}
+                            </div>
+
+                            <h3 class="title">{{ p["title"] }}</h3>
+
+                            <p class="meta">
+                                {{ p["condition"] }}
+                                {% if p["color"] %} • {{ p["color"] }}{% endif %}
+                                {% if p["category"] %} • {{ p["category"] }}{% endif %}
+                            </p>
+
+                            <div class="row">
+                                <span class="price">${{ "%.2f"|format(p["price"]) }}</span>
+
+                                <form action="{{ url_for('cart_add', product_id=p['id']) }}" method="post">
+                                    <button class="btn" type="submit" onclick="event.stopPropagation();">
+                                        Add to Cart
+                                    </button>
+                                </form>
+                            </div>
+                        </article>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <p class="meta">No deals available under $10 right now.</p>
+            {% endif %}
+        </section>
+
+        <section class="deal-section">
+            <h2 class="deal-title">Under $25!</h2>
+
+            {% if under_25 and under_25|length > 0 %}
+                <div class="grid">
+                    {% for p in under_25 %}
+                        <article class="card"
+                                 data-url="{{ url_for('product_detail', product_id=p['id']) }}"
+                                 onclick="window.location.href=this.dataset.url;">
+                            <div class="thumb">
+                                {% if p['main_image'] %}
+                                    <img src="{{ p['main_image'] }}" alt="{{ p['title'] }}">
+                                {% else %}
+                                    No image
+                                {% endif %}
+                            </div>
+
+                            <h3 class="title">{{ p["title"] }}</h3>
+
+                            <p class="meta">
+                                {{ p["condition"] }}
+                                {% if p["color"] %} • {{ p["color"] }}{% endif %}
+                                {% if p["category"] %} • {{ p["category"] }}{% endif %}
+                            </p>
+
+                            <div class="row">
+                                <span class="price">${{ "%.2f"|format(p["price"]) }}</span>
+
+                                <form action="{{ url_for('cart_add', product_id=p['id']) }}" method="post">
+                                    <button class="btn" type="submit" onclick="event.stopPropagation();">
+                                        Add to Cart
+                                    </button>
+                                </form>
+                            </div>
+                        </article>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <p class="meta">No deals available under $25 right now.</p>
+            {% endif %}
+        </section>
+
+    </main>
+{% endblock %}

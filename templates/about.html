@@ -1,0 +1,69 @@
+{% extends "public_layout.html" %}
+{# Uses the public layout since this page does not require login #}
+
+{% block extra_css %}
+<style>
+  /* Centers the About page content and accounts for fixed navbar */
+  .about-main { 
+    padding-top: 6rem;
+    flex: 1;
+    display: flex;
+    justify-content: center;
+  }
+
+  /* Content container with readable width and subtle card styling */
+  .about-main .container {
+    max-width: 800px;
+    width: min(90vw, 800px);     
+    margin: 6rem 1rem 3rem;      
+    padding: 2rem;
+    padding-bottom: 0.5rem;
+    background-color: rgba(255,255,255,0.9);
+    border-radius: 12px;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.05);
+  }
+
+  .about-main h1 {
+    color: #2563eb;
+    margin-top: 0;
+  }
+
+  /* Mobile spacing adjustments */
+  @media (max-width: 720px) {
+    .about-main {
+      padding-top: 5rem;
+    }
+
+    .about-main .container {
+      margin-top: 4.5rem;
+      padding: 1.5rem;
+    }
+  }
+</style>
+{% endblock %}
+
+{% block body %}
+  <main class="about-main">
+    <div class="container">
+      <h1>About DormCart</h1>
+
+      <p>
+        <strong>DormCart</strong> is a campus marketplace where students can buy,
+        sell, and exchange items safely and easily.
+      </p>
+
+      <h2>Our Mission</h2>
+      <p>
+        To make student life simpler by creating a trusted hub
+        for exchanging everyday essentials within the campus community.
+      </p>
+
+      <h2>How It Works</h2>
+      <ul>
+        <li>Sign up with your campus email.</li>
+        <li>List items you want to sell or browse items others posted.</li>
+        <li>Connect with fellow students and agree on a safe exchange method.</li>
+      </ul>
+    </div>
+  </main>
+{% endblock %}

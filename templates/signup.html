@@ -1,0 +1,76 @@
+{% extends "auth_layout.html" %}
+
+{% block body %}
+  <div id="card">
+    <div class="welcome">Welcome</div>
+
+    {# If app.py passes an error message, show it here #}
+    {% if error %}
+      <div class="error-box">
+        {{ error }}
+      </div>
+    {% endif %}
+
+    {# Signup form: collects name + email + password #}
+    <form action="{{ url_for('signup') }}" method="post">
+
+      <label for="first_name">First Name</label>
+      <input
+        id="first_name"
+        type="text"
+        name="first_name"
+        required
+        placeholder="First name"
+      />
+
+      <label for="last_name">Last Name</label>
+      <input
+        id="last_name"
+        type="text"
+        name="last_name"
+        required
+        placeholder="Last name"
+      />
+
+      <label for="email">Email Address</label>
+      <input
+        id="email"
+        type="email"
+        name="email"
+        autocomplete="email"
+        required
+        placeholder="Enter your email"
+      />
+
+      <label for="password">Password</label>
+      <input
+        id="password"
+        type="password"
+        name="password"
+        autocomplete="new-password"
+        required
+        minlength="6"
+        placeholder="Enter your password"
+      />
+
+      <label for="conpassword">Confirm Password</label>
+      <input
+        id="conpassword"
+        type="password"
+        name="conpassword"
+        autocomplete="new-password"
+        required
+        minlength="6"
+        placeholder="Confirm your password"
+      />
+
+      <span>
+        <a href="{{ url_for('login') }}" id="forgot">
+          <b>Have an account? Log in</b>
+        </a>
+      </span>
+
+      <button id="big-button" type="submit">Sign up</button>
+    </form>
+  </div>
+{% endblock %}

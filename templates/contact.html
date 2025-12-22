@@ -1,0 +1,101 @@
+{% extends "public_layout.html" %}
+
+{% block extra_css %}
+<style>
+  /* Center the card and keep it below the navbar */
+  main {
+    flex: 1;
+    display: flex;
+    justify-content: center;
+    padding-top: calc(var(--navbar-h) + 32px);
+    padding-bottom: 2rem;
+  }
+
+  main .container {
+    background-color: rgba(255,255,255,0.9);
+    max-width: 800px;
+    width: min(92vw, 800px);
+    margin: 2rem 1rem 1.5rem;
+    padding: 1.5rem 2rem 1rem;
+    border-radius: 12px;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+  }
+
+  h1 {
+    margin: 0 0 0.75rem 0;
+    font-size: 1.9rem;
+    text-align: center;
+  }
+
+  p {
+    margin-bottom: 1rem;
+  }
+
+  /* Simple stacked form layout */
+  form {
+    display: grid;
+    gap: 0.85rem;
+  }
+
+  input,
+  textarea {
+    width: 100%;
+    padding: 0.7rem;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    font-size: 1rem;
+    background: white;
+  }
+
+  button {
+    padding: 0.7rem;
+    border: none;
+    border-radius: 6px;
+    background: var(--primary);
+    color: white;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: 0.2s;
+  }
+
+  button:hover {
+    background: var(--primary-600);
+  }
+
+  @media (max-width: 720px) {
+    main {
+      padding-top: calc(var(--navbar-h) + 20px);
+    }
+
+    main .container {
+      margin-top: 1.5rem;
+      padding: 1.25rem 1.5rem 0.75rem;
+    }
+
+    h1 {
+      font-size: 1.6rem;
+    }
+  }
+</style>
+{% endblock %}
+
+{% block body %}
+<main>
+  <div class="container">
+    <h1>Contact Us</h1>
+    <p style="text-align:center">
+      Have a question, suggestion, or issue? Fill out the form below:
+    </p>
+
+    {# Demo-only form (no backend handler yet) #}
+    <form>
+      <input type="text" placeholder="Your Name" required>
+      <input type="email" placeholder="Your Email" required>
+      <textarea rows="5" placeholder="Your Message" required></textarea>
+
+      {# In a real app, this would POST to a Flask route like /contact_us #}
+      <button type="submit">Send Message</button>
+    </form>
+  </div>
+</main>
+{% endblock %}

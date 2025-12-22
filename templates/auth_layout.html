@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/png" href="{{ url_for('static', filename='images/logo.png') }}">
+
+    <!-- Global stylesheet shared across pages -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+
+    <title>{{ title }}</title>
+</head>
+
+<body>
+    {# Flash messages shown for user feedback (e.g., errors, success messages) #}
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            <div class="toast-wrap" id="toastWrap">
+                {% for category, msg in messages %}
+                    <div class="toast {{ category }}">
+                        <div class="toast-msg">{{ msg }}</div>
+                        <button class="toast-close" type="button" aria-label="Close">×</button>
+                    </div>
+                {% endfor %}
+            </div>
+        {% endif %}
+    {% endwith %}
+
+    {# Page-specific content will be injected here #}
+    {% block body %}
+    {% endblock %}
+
+    <!-- Handles auto-dismiss and close behavior for flash messages -->
+    <script src="{{ url_for('static', filename='js/flash.js') }}"></script>
+</body>
+</html>

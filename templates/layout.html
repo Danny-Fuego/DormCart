@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/png" href="{{ url_for('static', filename='images/logo.png') }}">
+
+    <!-- Global stylesheet shared across all pages -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+
+    <!-- Page-specific CSS injected by child templates -->
+    {% block extra_css %}{% endblock %}
+
+    <title>{{ title }}</title>
+</head>
+<body>
+
+    <!-- Main navigation bar -->
+    <nav class="navbar">
+        <div class="navdiv">
+            <!-- Logo + brand link -->
+            <div class="logobox">
+                <a href="{{ url_for('homepage') }}">
+                    <img src="{{ url_for('static', filename='images/Logo.png') }}" alt="DormCart Logo" class="logo">
+                </a>
+                <a href="{{ url_for('homepage') }}" class="brand">DormCart</a>
+            </div>
+
+            <!-- Mobile menu toggle button -->
+            <button class="menu-btn" aria-label="Toggle menu" aria-expanded="false">☰</button>
+
+            <!-- DESKTOP NAVIGATION -->
+            <div class="desktop-links">
+                <ul class="main">
+                    <li><a href="{{ url_for('categories') }}">Categories</a></li>
+                    <li><a href="{{ url_for('best_deals') }}">Best Deals</a></li>
+                    <li><a href="{{ url_for('sell') }}">Sell</a></li>
+                </ul>
+
+                <!-- Desktop search bar -->
+                <form id="searchForm" class="searchbar" action="{{ url_for('homepage') }}" method="get" role="search">
+                    <input
+                        id="searchInput"
+                        type="search"
+                        name="q"
+                        placeholder="What do you need..."
+                        autocomplete="off"
+                        value="{{ request.args.get('q', '') }}"
+                    >
+                    <button type="submit" aria-label="Search">
+                        <img src="{{ url_for('static', filename='images/search.png') }}" alt="search" class="search_btn">
+                    </button>
+                </form>
+
+                <!-- Cart and profile icons -->
+                <ul class="icons">
+                    <li>
+                        <a href="{{ url_for('cart') }}" class="cart_link">
+                            <img src="{{ url_for('static', filename='images/cart.png') }}" class="cart">
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{{ url_for('profile') }}" class="profile_link">
+                            <img src="{{ url_for('static', filename='images/profile.png') }}" class="profile">
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Overlay used when mobile drawer is open -->
+    <div class="overlay" id="navOverlay"></div>
+
+    <!-- MOBILE NAV DRAWER -->
+    <aside class="drawer" id="mobileDrawer">
+
+        <!-- Mobile search bar (separate from desktop for layout control) -->
+        <form id="searchFormMobile" class="searchbar mobile-search"
+              action="{{ url_for('homepage') }}" method="get" role="search">
+            <input
+                id="searchInputMobile"
+                type="search"
+                name="q"
+                placeholder="Search DormCart..."
+                autocomplete="off"
+                value="{{ request.args.get('q', '') }}"
+            >
+            <button type="submit" aria-label="Search">
+                <img src="{{ url_for('static', filename='images/search.png') }}" alt="search" class="search_btn">
+            </button>
+        </form>
+
+        <!-- Mobile navigation links -->
+        <ul class="mobile-list">
+            <li><a href="{{ url_for('homepage') }}">Home</a></li>
+            <li><a href="{{ url_for('categories') }}">Categories</a></li>
+            <li><a href="{{ url_for('best_deals') }}">Best Deals</a></li>
+            <li><a href="{{ url_for('sell') }}">Sell</a></li>
+            <li><a href="{{ url_for('cart') }}">Cart</a></li>
+            <li><a href="{{ url_for('profile') }}">Profile</a></li>
+        </ul>
+    </aside>
+
+    <!-- Flash messages (success, error, info) -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            <div class="toast-wrap" id="toastWrap">
+                {% for category, msg in messages %}
+                    <div class="toast {{ category }}">
+                        <div class="toast-msg">{{ msg }}</div>
+                        <button class="toast-close" type="button" aria-label="Close">×</button>
+                    </div>
+                {% endfor %}
+            </div>
+        {% endif %}
+    {% endwith %}
+
+    <!-- Page-specific content -->
+    {% block body %}
+    {% endblock %}
+
+    <!-- Navigation and flash message scripts -->
+    <script src="{{ url_for('static', filename='js/navbar.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/flash.js') }}"></script>
+</body>
+</html>

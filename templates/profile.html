@@ -1,0 +1,601 @@
+{% extends "layout.html" %}
+
+{% block extra_css %}
+    <style>
+        /* Profile header layout: avatar + user info + action buttons */
+        .header{
+            display:grid;
+            grid-template-columns: 112px 1fr auto;
+            gap: 16px;
+            align-items: center;
+            padding:16px;
+            border:1px solid var(--border);
+            border-radius:16px;
+            background:#fff;
+        }
+
+        .avatar{
+            width:112px;
+            height:112px;
+            border-radius:50%;
+            overflow:hidden;
+            display:grid;
+            place-items:center;
+            background:#f2f3f5;
+            color:#6b7280;
+            font-weight:700;
+            border:1px solid rgba(0,0,0,.06);
+        }
+
+        .avatar img{
+            width:100%;
+            height:100%;
+            object-fit:cover;
+            display:block;
+        }
+
+        .headline h1{
+            margin:0 0 6px;
+            font-size:26px;
+            color:#111827;
+        }
+
+        .header .actions{
+            display:flex;
+            gap:10px;
+        }
+
+        /* Reusable button styles (also used across other pages) */
+        .btn{
+            padding:10px 14px;
+            border-radius:10px;
+            border:0;
+            cursor:pointer;
+            background:var(--primary);
+            color:#fff;
+            font-weight:700;
+            transition:.15s;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .btn:hover{
+            background:var(--primary-600);
+        }
+
+        .btn.ghost{
+            background:transparent;
+            color:#111;
+            border:1px solid rgba(0,0,0,.12);
+        }
+
+        .btn.ghost:hover{
+            background:#f8fafc;
+        }
+
+        /* Quick profile stats (active listings, sold, rating) */
+        .stats{
+            display:grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap:12px;
+            margin-top:12px;
+        }
+
+        .stat{
+            background:#fff;
+            border:1px solid rgba(0,0,0,.08);
+            border-radius:12px;
+            padding:14px;
+        }
+
+        .stat b{
+            font-size:22px;
+            display:block;
+        }
+        .stat span{
+            color:#6b7280;
+            font-size:13px;
+        }
+
+        /* Tabs for switching between profile panels */
+        .tabs{
+            margin-top:20px;
+            display:flex;
+            gap:10px;
+            flex-wrap:wrap;
+            border-bottom:1px solid rgba(0,0,0,.08);
+            padding-bottom:8px;
+        }
+
+        .panel { display: none; }
+        .panel.active { display: block; }
+
+        .tab{
+            appearance:none;
+            border:0;
+            background:transparent;
+            padding:10px 14px;
+            border-radius:10px;
+            cursor:pointer;
+            font-weight:700;
+            color:#111;
+            transition:.15s;
+        }
+
+        .tab:hover{
+            background:#f3f4f6;
+        }
+
+        .tab.active{
+            background:#e7f0ff;
+            color:#1d4ed8;
+            border:1px solid rgba(37,99,235,.25);
+        }
+
+        /* Listing cards */
+        .grid{
+            display:grid;
+            gap:16px;
+            padding:16px;
+            grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+        }
+
+        .card{
+            background:#fff;
+            border:1px solid rgba(0,0,0,.08);
+            border-radius:12px;
+            overflow:hidden;
+            display:flex;
+            flex-direction:column;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            transition: transform .15s ease, box-shadow .15s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.08);
+        }
+
+        .thumb{
+            height:160px;
+            background:#f2f3f5;
+            display:grid;
+            place-items:center;
+            color:#6b7280;
+            font-weight: 700;
+        }
+
+        .thumb img{
+            width:100%;
+            height:100%;
+            object-fit:cover;
+            display:block;
+        }
+
+        .card .body{
+            padding:12px;
+            display:flex;
+            flex-direction:column;
+            gap:6px;
+        }
+
+        .title{
+            margin:0;
+            font-weight:700;
+        }
+
+        .meta{
+            margin:0;
+            color:#6b7280;
+            font-size:14px;
+        }
+
+        .row{
+            display:flex;
+            align-items:center;
+            justify-content:space-between;
+            gap:10px;
+        }
+
+        .price{
+            font-weight:800;
+        }
+
+        /* Settings form layout */
+        form.settings {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px 24px;
+            padding: 24px;
+            background: #fff;
+            border-radius: 16px;
+            border: 1px solid rgba(0,0,0,0.08);
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+            margin-top: 10px;
+        }
+
+        form.settings .full {
+            grid-column: 1 / -1;
+        }
+
+        form.settings label {
+            display: block;
+            font-weight: 700;
+            margin-bottom: 6px;
+            color: #111827;
+        }
+
+        form.settings input,
+        form.settings select,
+        form.settings textarea {
+            width: 90%;
+            padding: 12px 14px;
+            font-size: 15px;
+            border-radius: 10px;
+            border: 1px solid #d1d5db;
+            background: #f9fafb;
+            transition: border-color 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        form.settings input:focus,
+        form.settings select:focus,
+        form.settings textarea:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.2);
+            outline: none;
+        }
+
+        form.settings button {
+            font-weight: 700;
+            padding: 12px 18px;
+            border-radius: 10px;
+            border: none;
+            cursor: pointer;
+        }
+
+        form.settings .btn {
+            background: var(--primary);
+            color: #fff;
+        }
+
+        form.settings .btn:hover {
+            background: var(--primary-600);
+        }
+
+        form.settings .btn.ghost {
+            background: transparent;
+            color: #111;
+            border: 1px solid rgba(0, 0, 0, 0.12);
+        }
+
+        form.settings .btn.ghost:hover {
+            background: #f3f4f6;
+        }
+
+        /* Tablet tweaks */
+        @media (max-width: 1024px) {
+            main.profile {
+                width: min(94vw, 900px);
+            }
+
+            .header {
+                grid-template-columns: 112px 1fr;
+                grid-auto-rows: min-content;
+            }
+
+            .header .actions {
+                justify-self: flex-start;
+                margin-top: 8px;
+                flex-wrap: wrap;
+            }
+        }
+
+        /* Phone tweaks */
+        @media (max-width: 720px) {
+            main.profile {
+                width: min(85vw, 850px);
+                padding: 24px 12px 32px;
+            }
+
+            .header {
+                grid-template-columns: 1fr;
+                text-align: center;
+            }
+
+            .avatar {
+                margin: 0 auto 12px;
+            }
+
+            .header .actions {
+                justify-content: center;
+                flex-wrap: wrap;
+                margin-top: 12px;
+            }
+
+            .headline h1 {
+                font-size: 22px;
+            }
+
+            .tabs {
+                overflow-x: auto;
+                white-space: nowrap;
+            }
+
+            .tab {
+                flex: 0 0 auto;
+            }
+
+            form.settings {
+                grid-template-columns: 1fr;
+                padding: 16px;
+            }
+        }
+    </style>
+{% endblock %}
+
+{% block body %}
+    <main class="page">
+        <section class="header">
+            <div class="avatar" aria-label="Profile avatar">
+                {# Generate initials from display name (fallback: email) #}
+                {% set dn = display_name or user["email"] %}
+                {% set parts = dn.split() %}
+                {% if parts|length >= 2 %}
+                    {{ parts[0][0] ~ parts[1][0] }}
+                {% else %}
+                    {{ dn[0:2] }}
+                {% endif %}
+            </div>
+
+            <div class="headline">
+                <h1>{{ display_name }}</h1>
+
+                <p class="meta">
+                    {{ user["email"] }}
+                    {% if user["created_at"] %}
+                        • Joined {{ user["created_at"] }}
+                    {% endif %}
+                </p>
+
+                <div class="stats">
+                    <div class="stat">
+                        <b>{{ stats["active_listings"] or 0 }}</b>
+                        <span>Active listings</span>
+                    </div>
+                    <div class="stat">
+                        <b>{{ stats["sold_listings"] or 0 }}</b>
+                        <span>Items sold</span>
+                    </div>
+                    <div class="stat">
+                        <b>{{ rating_stats["avg_rating"] or 0 }}★</b>
+                        <span>
+                            Seller rating
+                            {% if rating_stats["rating_count"] %}
+                                ({{ rating_stats["rating_count"] }})
+                            {% endif %}
+                        </span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="actions">
+                <a class="btn" href="{{ url_for('sell') }}">+ New Listing</a>
+
+                {# Edit Profile just jumps to Settings panel for now #}
+                <button class="btn ghost" id="editBtn" type="button">Edit Profile</button>
+
+                <a class="btn ghost"
+                   href="{{ url_for('logout') }}"
+                   style="color: #dc2626; border-color: rgba(220, 38, 38, 0.2);">
+                    Sign Out
+                </a>
+            </div>
+        </section>
+
+        <nav class="tabs" id="tabs">
+            <button class="tab active" data-panel="listings">My Listings</button>
+
+            {# These are planned features but intentionally disabled in this demo #}
+            <button class="tab" data-panel="saved" disabled title="Not implemented yet" style="opacity:.45; cursor:not-allowed;">Saved</button>
+            <button class="tab" data-panel="orders" disabled title="Not implemented yet" style="opacity:.45; cursor:not-allowed;">Orders</button>
+
+            <button class="tab" data-panel="settings">Settings</button>
+        </nav>
+
+        <section class="panel active" id="panel-listings">
+            <div class="grid">
+                {% if recent_products %}
+                    {% for p in recent_products %}
+                        <article class="card"
+                                 data-url="{{ url_for('product_detail', product_id=p['id']) }}"
+                                 onclick="window.location.href = this.dataset.url;"
+                                 style="cursor: pointer;">
+                            <div class="thumb">
+                                {% if p["main_image"] %}
+                                    <img src="{{ p['main_image'] }}" alt="{{ p['title'] }}">
+                                {% else %}
+                                    No image
+                                {% endif %}
+                            </div>
+
+                            <div class="body">
+                                <h3 class="title">{{ p["title"] }}</h3>
+                                <p class="meta">
+                                    {% if p["is_sold"] %}Sold{% else %}Available{% endif %}
+                                    {% if p["created_at"] %} • {{ p["created_at"] }}{% endif %}
+                                </p>
+
+                                <div class="row">
+                                    <span class="price">${{ "%.2f"|format(p["price"]) }}</span>
+
+                                    {# Edit listing is a future feature (button stays for UI consistency) #}
+                                    <a class="btn ghost"
+                                       href="#"
+                                       onclick="event.stopPropagation(); return false;"
+                                       style="opacity:.45; cursor:not-allowed;"
+                                       title="Edit not implemented yet">
+                                        Edit
+                                    </a>
+                                </div>
+                            </div>
+                        </article>
+                    {% endfor %}
+                {% else %}
+                    {# Friendly empty state for new users #}
+                    <div class="card" style="grid-column: 1 / -1;">
+                        <div class="body">
+                            <h3 class="title">No listings yet</h3>
+                            <p class="meta">Create your first listing to see it here.</p>
+                            <div class="row" style="margin-top:8px;">
+                                <a class="btn" href="{{ url_for('sell') }}">+ New Listing</a>
+                            </div>
+                        </div>
+                    </div>
+                {% endif %}
+            </div>
+        </section>
+
+        <section class="panel" id="panel-saved">
+            <div class="grid">
+                <div class="card" style="grid-column: 1 / -1;">
+                    <div class="body">
+                        <h3 class="title">Saved is not available yet</h3>
+                        <p class="meta">You can add this later with a saved_items table.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="panel" id="panel-orders">
+            <div class="grid">
+                <div class="card" style="grid-column: 1 / -1;">
+                    <div class="body">
+                        <h3 class="title">Orders are not available yet</h3>
+                        <p class="meta">Since checkout is disabled, orders can stay disabled too.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="panel" id="panel-settings">
+            {# Settings UI is visible, but saving is disabled for demo submission #}
+            <form class="settings" method="post" action="#" onsubmit="return false;">
+                <div class="full">
+                    <label for="displayName">Display Name</label>
+                    <input
+                        id="displayName"
+                        name="displayName"
+                        type="text"
+                        placeholder="Your name"
+                        value="{{ user['display_name'] or display_name }}"
+                    >
+                </div>
+
+                <div>
+                    <label for="firstName">First Name</label>
+                    <input
+                        id="firstName"
+                        name="firstName"
+                        type="text"
+                        placeholder="First name"
+                        value="{{ user['first_name'] or '' }}"
+                    />
+                </div>
+
+                <div>
+                    <label for="lastName">Last Name</label>
+                    <input
+                        id="lastName"
+                        name="lastName"
+                        type="text"
+                        placeholder="Last name"
+                        value="{{ user['last_name'] or '' }}"
+                    />
+                </div>
+
+                <div class="full">
+                    <label for="email">Email</label>
+                    <input
+                        id="email"
+                        name="email"
+                        type="email"
+                        placeholder="you@school.edu"
+                        value="{{ user['email'] }}"
+                        readonly
+                        title="Email changes not implemented"
+                        style="opacity:.9; cursor:not-allowed;"
+                    />
+                </div>
+
+                <div>
+                    <label for="contactPref">Default Contact</label>
+                    <select id="contactPref" name="contactPref" disabled style="opacity:.65; cursor:not-allowed;">
+                        <option value="chat" selected>In-app chat</option>
+                        <option value="email">Email</option>
+                        <option value="phone">Phone</option>
+                    </select>
+                </div>
+
+                <div>
+                    <label for="curPass">Current Password</label>
+                    <input id="curPass" name="curPass" type="password" placeholder="••••••••" disabled style="opacity:.65; cursor:not-allowed;" />
+                </div>
+
+                <div>
+                    <label for="newPass">New Password</label>
+                    <input id="newPass" name="newPass" type="password" placeholder="••••••••" disabled style="opacity:.65; cursor:not-allowed;" />
+                </div>
+
+                <div>
+                    <label for="confirmPass">Confirm Password</label>
+                    <input id="confirmPass" name="confirmPass" type="password" placeholder="••••••••" disabled style="opacity:.65; cursor:not-allowed;" />
+                </div>
+
+                <div class="full">
+                    <label for="bio">About You</label>
+                    <textarea id="bio" name="bio" placeholder="Tell buyers a little about yourself..." disabled style="opacity:.65; cursor:not-allowed;"></textarea>
+                </div>
+
+                <div class="full" style="display:flex; gap:10px; flex-wrap:wrap;">
+                    <button class="btn" type="button" disabled style="opacity:.45; cursor:not-allowed;">Save Changes</button>
+                    <button class="btn ghost" type="button">Cancel</button>
+                </div>
+            </form>
+        </section>
+    </main>
+
+    <script>
+        // Tabs switching: show one panel at a time without reloading the page
+        const tabs = document.getElementById('tabs');
+        const panelMap = {
+            listings: document.getElementById('panel-listings'),
+            saved: document.getElementById('panel-saved'),
+            orders: document.getElementById('panel-orders'),
+            settings: document.getElementById('panel-settings'),
+        };
+
+        tabs.addEventListener('click', (e) => {
+            const btn = e.target.closest('.tab');
+            if(!btn) return;
+            if(btn.disabled) return; // ignore disabled tabs (demo features)
+
+            [...tabs.querySelectorAll('.tab')].forEach(t => t.classList.remove('active'));
+            btn.classList.add('active');
+
+            Object.values(panelMap).forEach(p => p.classList.remove('active'));
+            const key = btn.dataset.panel;
+            panelMap[key]?.classList.add('active');
+        });
+
+        // "Edit Profile" is just a shortcut to open the Settings tab
+        const editBtn = document.getElementById("editBtn");
+        if(editBtn){
+            editBtn.addEventListener("click", () => {
+                const settingsTab = tabs.querySelector('.tab[data-panel="settings"]');
+                settingsTab?.click();
+            });
+        }
+    </script>
+{% endblock %}

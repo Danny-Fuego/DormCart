@@ -1,0 +1,316 @@
+{% extends "layout.html" %}
+
+{% block extra_css %}
+<style>
+        /* Main layout: items on the left, summary on the right */
+        .cart-grid{
+            display:grid;
+            grid-template-columns: 1fr 360px;
+            gap: clamp(16px, 2vw, 24px);
+        }
+
+        /* Stack columns on smaller screens */
+        @media (max-width: 960px){
+            .cart-grid{ grid-template-columns: 1fr; }
+        }
+
+        .section-title{
+            margin:0 0 14px;
+            font-size: clamp(20px, 2vw, 26px);
+            color:#0b1220;
+        }
+
+        .cart-items{
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+        }
+
+        /* Each cart row/card */
+        .item{
+            display: grid;
+            grid-template-columns: 96px 1fr auto;
+            gap: 14px;
+            background: rgba(255,255,255,0.9);
+            border:1px solid rgba(0,0,0,0.06);
+            border-radius:14px;
+            padding:14px;
+        }
+
+        /* Mobile layout adjustments for each item */
+        @media (max-width: 600px){
+            .item{
+                grid-template-columns: 80px 1fr;
+                grid-template-areas:
+                "thumb info"
+                "qty qty";
+            }
+
+            /* Slightly bigger thumb on very small screens */
+            .item{
+                grid-template-columns: 90px 1fr;   
+                align-items: flex-start;
+            }
+
+            /* Controls drop under the product info */
+            .controls{
+                grid-column: 1 / -1;              
+                align-items: center;              
+                margin-top: 8px;
+            }
+
+            .info .title{
+                font-size: 17px;                  
+            }
+        }
+
+        .thumb{
+            width: 96px;
+            height: 96px;
+            border-radius: 10px;
+            overflow: hidden;
+            display: flex; 
+            align-items: center;
+            justify-content: center;
+            background: rgba(0, 0, 0, 0.04);
+            color: #6b7280;
+            font-weight: 600;
+        }
+        
+        .thumb img{
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .info .title{
+            margin: 0 0 6px;
+            font-size: 18px;
+        }
+
+        .info .meta{
+            margin: 0; 
+            color: #4b5563;
+            font-size: 14px;
+        }
+
+        .controls{
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            gap: 8px;
+            min-width: 170px;
+        }
+
+        .price{
+            font-weight: 700;
+        }
+
+        /* Quantity control */
+        .qty{
+            display: inline-flex; 
+            align-items: center;
+            gap: 8px;
+            border-radius: 999px;
+            padding: 6px 10px;
+            justify-content: center;
+        }
+
+        .qty button{
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            border: 0;
+            background: #eef2ff;
+            color: #111;
+            cursor: pointer;
+            font-weight: 700;
+            display: grid;
+            place-items: center;
+            transition: all 0.2s ease;
+        }
+
+        .qty input{
+            width: 30px;
+            text-align: center;
+            border: 0;
+            outline: none; 
+            background: transparent;
+            font-weight: 600;
+            line-height: 1;
+            height: 28px;
+        }
+
+        .qty button:hover{
+            transform: translateY(-1px);
+        }
+
+        /* Remove default number spinners for cleaner UI */
+        input[type=number]::-webkit-inner-spin-button, input[type=number]::-webkit-outer-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+
+        input[type=number]{
+            -moz-appearance: textfield;
+            appearance: textfield;
+        }
+
+        .remove{
+            color: #ef4444;
+            background: transparent;
+            border: 0;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.2s ease;
+        }
+
+        .remove:hover{
+            transform: translateY(-1px);
+        }
+
+        /* Order summary sidebar stays visible while scrolling (desktop) */
+        .summary{
+            background: rgba(255,255,255,0.9);
+            border:1px solid rgba(0,0,0,0.06);
+            border-radius:14px;
+            padding:16px;
+            height: fit-content;
+            position: sticky;
+            top: calc(64px + 24px + 16px);
+        }
+
+        .summary h3{ 
+            margin:0 0 12px; 
+        }
+
+        .row{ 
+            display:flex; 
+            justify-content:space-between; 
+            align-items:center; 
+            margin:8px 0; 
+        }
+
+        .total{ 
+            font-size:20px; 
+            font-weight:800; 
+        }
+
+        .btn{
+            display:inline-block; width:100%;
+            padding:12px 16px; border-radius:10px; border:0;
+            background:var(--primary); color:#fff; font-weight:700; cursor:pointer;
+            transition: background .15s ease;
+            text-align:center;
+        }
+
+        .btn:hover{ 
+            background:var(--primary-600); 
+        }
+
+        .note{ 
+            font-size:12px; 
+            color:#6b7280; 
+            margin-top:8px; 
+        }
+
+        @media (max-width: 720px) {
+            /* Keep cart page comfortable on phones */
+            main.cart {
+                width: min(85vw, 850px);
+                padding: 24px 12px 32px;
+            }
+        }
+</style>
+{% endblock %}
+
+{% block body %}
+    <main class="page">
+        <h2 class="section-title">Your Cart</h2>
+
+        <div class="cart-grid">
+            <section class="cart-items" id="cartList">
+                {% if items %}
+                    {# Render each cart item returned from the database #}
+                    {% for it in items %}
+                        <article class="item" data-price="{{ it['price'] }}">
+                            <div class="thumb">
+                                {% if it["main_image"] %}
+                                    <img src="{{ it['main_image'] }}" alt="{{ it['title'] }}">
+                                {% else %}
+                                    <span>No image</span>
+                                {% endif %}
+                            </div>
+
+                            <div class="info">
+                                <h3 class="title">{{ it["title"] }}</h3>
+                                <p class="meta">
+                                    {{ it["condition"] }}
+                                    {% if it["color"] %} • {{ it["color"] }}{% endif %}
+                                    {% if it["category"] %} • {{ it["category"] }}{% endif %}
+                                </p>
+                            </div>
+
+                            <div class="controls">
+                                <div class="price">
+                                    $<span class="unit">{{ "%.2f"|format(it["price"])}}</span>
+                                </div>
+
+                                <div class="qty">
+                                    {# Decrement: backend decides whether to reduce qty or remove item #}
+                                    <form method="post" action="{{ url_for('cart_decr', product_id=it['id']) }}" style="margin:0;">
+                                        <button class="decr" type="submit" aria-label="Remove">-</button>
+                                    </form>
+
+                                    {# Readonly because quantity changes are handled by POST routes #}
+                                    <input class="count" type="number" value="{{ it['quantity'] }}" min="1" readonly />
+
+                                    {# Increment can be disabled server-side if you lock it later #}
+                                    <form method="post" action="{{ url_for('cart_incr', product_id=it['id']) }}" style="margin:0;">
+                                        <button class="incr" type="submit" aria-label="Increase">+</button>
+                                    </form>
+                                </div>
+
+                                {# Remove item completely from cart #}
+                                <form method="post" action="{{ url_for('cart_remove', product_id=it['id']) }}" style="margin:0;">
+                                    <button class="remove" type="submit">Remove</button>
+                                </form>
+                            </div>
+                        </article>
+                    {% endfor %}
+                {% else %}
+                    {# Simple placeholder when cart is empty #}
+                    <article class="item">
+                        <div class="thumb"><span>—</span></div>
+                        <div class="info">
+                            <h3 class="title">Your cart is empty</h3>
+                            <p class="meta">Add items from the homepage.</p>
+                        </div>
+                        <div class="controls"></div>
+                    </article>
+                {% endif %}
+            </section>
+                
+            <aside class="summary">
+                <h3>Order Summary</h3>
+
+                {# These values are computed in app.py and passed in #}
+                <div class="row"><span>Items</span> <strong id="itemsCount">{{ items_count }}</strong></div>
+                <div class="row"><span>Subtotal</span> <strong id="subtotal">${{ "%.2f"|format(subtotal) }}</strong></div>
+                <div class="row"><span>Service fee</span> <span id="fee">${{ "%.2f"|format(fee) }}</span></div>
+                <hr>
+                <div class="row total"><span>Total</span> <span id="total">${{ "%.2f"|format(total) }}</span></div>
+
+                {# Checkout is a POST so it can flash a message and redirect safely #}
+                <form method="post" action="{{ url_for('checkout') }}">
+                    <button class="btn" id="checkoutBtn"
+                            {% if not items %}disabled style="opacity:.6; cursor:not-allowed;"{% endif %}>
+                        Proceed to Checkout
+                    </button>
+                </form>
+
+                <p class="note">You’ll choose pickup/meet-up details at checkout.</p>
+            </aside>
+        </div>
+    </main>
+{% endblock %}

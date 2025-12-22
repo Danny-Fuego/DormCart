@@ -1,0 +1,368 @@
+{% extends "layout.html" %}
+
+{% block extra_css %}
+<style>
+  /* Two-column layout: image gallery + product details */
+  .product-wrap{
+    display:grid;
+    grid-template-columns: 1.1fr 0.9fr;
+    gap: 18px;
+    align-items:start;
+  }
+
+  /* Stack layout on smaller screens */
+  @media (max-width: 980px){
+    .product-wrap{ grid-template-columns: 1fr; }
+  }
+
+  /* Shared glass-style container */
+  .glass{
+    background: rgba(255,255,255,0.12);
+    border: 1px solid rgba(255,255,255,0.28);
+    border-radius: 16px;
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    overflow:hidden;
+  }
+
+  /* Image gallery section */
+  .gallery{
+    padding: 12px;
+  }
+
+  /* Main product image */
+  .main-img{
+    position:relative;
+    aspect-ratio: 4/3;
+    border-radius: 14px;
+    overflow:hidden;
+    background: linear-gradient(35deg, #eff3ff, #e6ecff);
+    display:grid;
+    place-items:center;
+    color:#6371a6;
+    font-weight:700;
+  }
+
+  .main-img img{
+    width:100%;
+    height:100%;
+    object-fit:cover;
+    display:block;
+  }
+
+  /* Thumbnail image strip */
+  .thumbs{
+    margin-top: 12px;
+    display:grid;
+    grid-template-columns: repeat(auto-fill, minmax(84px, 1fr));
+    gap: 10px;
+  }
+
+  .thumb-btn{
+    border:1px solid rgba(255,255,255,0.28);
+    background: rgba(255,255,255,0.10);
+    border-radius: 12px;
+    overflow:hidden;
+    padding:0;
+    cursor:pointer;
+    aspect-ratio: 1/1;
+    display:grid;
+    place-items:center;
+    color:#6371a6;
+    font-weight:700;
+    transition: transform .12s ease, box-shadow .12s ease;
+  }
+
+  /* Hover effect for thumbnails */
+  .thumb-btn:hover{
+    transform: translateY(-1px);
+    box-shadow: 0px 10px 24px rgba(0,0,0,.10);
+  }
+
+  .thumb-btn.active{
+    outline: 2px solid rgba(37,99,235,.65);
+    outline-offset: 2px;
+  }
+
+  .thumb-btn img{
+    width:100%;
+    height:100%;
+    object-fit:cover;
+    display:block;
+  }
+
+  /* Product details section */
+  .details{
+    padding: 16px;
+    display:flex;
+    flex-direction:column;
+    gap: 12px;
+  }
+
+  .title{
+    margin:0;
+    font-size: clamp(22px, 2.4vw, 30px);
+    font-weight:800;
+    color:#0b1220;
+    letter-spacing:-0.2px;
+  }
+
+  .price{
+    font-size: 22px;
+    font-weight: 900;
+    color:#000;
+    margin: 0;
+  }
+
+  /* Metadata pills (condition, color, category) */
+  .meta{
+    display:flex;
+    flex-wrap:wrap;
+    gap:8px;
+    margin: 2px 0 0;
+  }
+
+  .pill{
+    display:inline-flex;
+    align-items:center;
+    gap:6px;
+    padding: 7px 10px;
+    border-radius:999px;
+    background: rgba(255,255,255,0.18);
+    border: 1px solid rgba(255,255,255,0.28);
+    color: rgba(0,0,0,.85);
+    font-size: 13px;
+    font-weight: 700;
+  }
+
+  /* Product description box (THIS was missing) */
+  .desc{
+    margin:0;
+    color: rgba(0,0,0,.85);
+    line-height:1.5;
+    font-size: 14.5px;
+    background: rgba(255,255,255,0.10);
+    border: 1px solid rgba(255,255,255,0.22);
+    padding: 12px;
+    border-radius: 14px;
+  }
+
+  /* Action buttons row (THIS was missing) */
+  .actions{
+    display:flex;
+    gap:10px;
+    margin-top: 4px;
+    flex-wrap:wrap;
+  }
+
+  /* Buttons (THIS was missing) */
+  .btn{
+    border:0;
+    background:var(--primary);
+    color:#fff;
+    padding:10px 14px;
+    border-radius:12px;
+    font-weight:800;
+    cursor:pointer;
+    transition: background .15s ease, transform .15s ease;
+    text-decoration:none;
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+  }
+
+  .btn:hover{
+    background: var(--primary-600);
+    transform: translateY(-1px);
+  }
+
+  /* Ghost button variant */
+  .btn.ghost{
+    background: transparent;
+    color:#111;
+    border:1px solid rgba(0,0,0,.12);
+  }
+
+  .btn.ghost:hover{
+    background:#f8fafc;
+  }
+
+  /* Disabled buttons */
+  .btn.disabled,
+  .btn:disabled{
+    opacity: .55;
+    cursor: not-allowed;
+    transform: none !important;
+  }
+
+  /* Seller info box */
+  .seller-box{
+    padding: 14px;
+    border-radius: 14px;
+    background: rgba(255,255,255,0.10);
+    border: 1px solid rgba(255,255,255,0.22);
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    gap: 10px;
+  }
+
+  /* Comments section (UI-only demo) */
+  .comments{
+    margin-top: 18px;
+  }
+
+  .section-title{
+    margin:0 0 10px;
+    font-size: 18px;
+    font-weight: 900;
+    color:#0b1220;
+  }
+
+  .comment-list{
+    display:flex;
+    flex-direction:column;
+    gap: 10px;
+  }
+
+  .comment{
+    padding: 12px;
+    border-radius: 14px;
+    background: rgba(255,255,255,0.10);
+    border: 1px solid rgba(255,255,255,0.22);
+  }
+
+  .comment-form{
+    margin-top: 12px;
+    display:flex;
+    gap:10px;
+    flex-wrap:wrap;
+  }
+
+  .comment-form textarea{
+    flex: 1 1 320px;
+    min-height: 42px;
+    max-height: 120px;
+    resize: vertical;
+    padding: 10px 12px;
+    border-radius: 12px;
+    border: 1px solid rgba(0,0,0,.12);
+    background: rgba(255,255,255,0.85);
+    outline:none;
+    font-size: 14px;
+  }
+
+  .hint{
+    font-size: 12px;
+    color:#6b7280;
+    margin: 6px 0 0;
+  }
+</style>
+{% endblock %}
+
+
+{% block body %}
+<main class="page">
+    <div class="product-wrap">
+
+        <!-- Product image gallery -->
+        <section class="glass gallery">
+            <div class="main-img">
+                {% if images and images|length > 0 %}
+                    <img id="mainImage" src="{{ images[0]['image_url'] }}" alt="{{ product['title'] }}">
+                {% else %}
+                    <span>No image</span>
+                {% endif %}
+            </div>
+
+            <!-- Clickable thumbnails -->
+            {% if images and images|length > 1 %}
+            <div class="thumbs" id="thumbs">
+                {% for img in images %}
+                    <button type="button"
+                            class="thumb-btn {% if loop.index0 == 0 %}active{% endif %}"
+                            data-src="{{ img['image_url'] }}">
+                        <img src="{{ img['image_url'] }}" alt="Thumbnail {{ loop.index }}">
+                    </button>
+                {% endfor %}
+            </div>
+            {% endif %}
+        </section>
+
+        <!-- Product information -->
+        <section class="glass details">
+            <h1 class="title">{{ product["title"] }}</h1>
+            <p class="price">${{ "%.2f"|format(product["price"]) }}</p>
+
+            <!-- Display product attributes if available -->
+            <div class="meta">
+                {% if product["condition"] %}<span class="pill">Condition: {{ product["condition"] }}</span>{% endif %}
+                {% if product["color"] %}<span class="pill">Color: {{ product["color"] }}</span>{% endif %}
+                {% if product["category"] %}<span class="pill">Category: {{ product["category"] }}</span>{% endif %}
+            </div>
+
+            <!-- Product description -->
+            <p class="desc">
+                {{ product["description"] if product["description"] else "No description provided." }}
+            </p>
+
+            <!-- Seller placeholder (future feature) -->
+            <div class="seller-box">
+                <div>
+                    <b>Seller</b>
+                    <span>Profile coming soon (demo)</span>
+                </div>
+                <button class="btn ghost disabled" disabled>Message</button>
+            </div>
+
+            <!-- Purchase actions -->
+            <div class="actions">
+                <form action="{{ url_for('cart_add', product_id=product['id']) }}" method="post">
+                    <button class="btn" type="submit">Add to Cart</button>
+                </form>
+
+                <button class="btn disabled" disabled>Checkout (Unavailable)</button>
+                <a class="btn ghost" href="{{ url_for('homepage') }}">Back</a>
+            </div>
+
+            <p class="hint">Checkout & messaging are disabled for the demo.</p>
+        </section>
+    </div>
+
+    <!-- Demo comments section -->
+    <section class="comments">
+        <h2 class="section-title">Comments</h2>
+
+        <div class="comment-list">
+            <div class="comment">
+                <b>Anonymous Buyer</b>
+                <p>Is this still available? (Demo comment)</p>
+            </div>
+        </div>
+
+        <form class="comment-form" onsubmit="return false;">
+            <textarea placeholder="Write a comment... (demo only)"></textarea>
+            <button class="btn disabled" disabled>Post</button>
+        </form>
+
+        <p class="hint">Comments are UI-only and not stored in the database yet.</p>
+    </section>
+
+    <!-- Simple JS for thumbnail switching -->
+    <script>
+        const main = document.getElementById("mainImage");
+        const thumbs = document.getElementById("thumbs");
+
+        if (main && thumbs) {
+            thumbs.addEventListener("click", (e) => {
+                const btn = e.target.closest(".thumb-btn");
+                if (!btn) return;
+
+                main.src = btn.dataset.src;
+                thumbs.querySelectorAll(".thumb-btn").forEach(b => b.classList.remove("active"));
+                btn.classList.add("active");
+            });
+        }
+    </script>
+</main>
+{% endblock %}

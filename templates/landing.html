@@ -1,0 +1,97 @@
+{% extends "public_layout.html" %}
+
+{% block extra_css %}
+<style>
+    /* Main call-to-action prompt shown on the landing page */
+    .prompt {
+        position: absolute;
+        top: 28%;
+        left: 5%;
+        display: flex;
+        flex-direction: column;
+        background: rgba(255,255,255,0.18);
+        color: var(--ink);
+        backdrop-filter: blur(10px);
+        -webkit-backdrop-filter: blur(10px);
+        padding: 32px 32px 24px;      
+        border: 1px solid rgba(255, 255, 255, 0.28);
+        border-radius: 20px;
+        align-items: stretch;
+        max-width: 460px;
+        box-sizing: border-box;
+        gap: 24px;                    
+    }
+
+    .prompt h1 {
+        margin: 0;
+        text-align: center;
+    }
+
+    /* Container for Sign Up / Log In buttons */
+    .prompt_buttons {
+        display: flex;
+        justify-content: space-between;
+        gap: 16px;
+        width: 100%;
+        height: auto;                 
+    }
+
+    .prompt_buttons a {
+        flex: 1;
+        padding: 12px 0;              
+        border: none;
+        border-radius: 20px;
+        background-color: #1500a0;
+        color: var(--ink-inv);
+        font-size: large;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+    }
+
+    .prompt_buttons a:hover {
+        cursor: pointer;
+        background-color: var(--primary);
+    }
+
+    /* Tablet layout: center the prompt horizontally */
+    @media (max-width: 1024px) {
+        .prompt {
+            top: 32%;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+    }
+
+    /* Mobile layout: fully center and stack buttons */
+    @media (max-width: 720px) {
+        .prompt {
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: min(90vw, 420px);
+        }
+
+        .prompt_buttons {
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .prompt_buttons a {
+            width: 100%;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block body %}
+        <!-- Landing page prompt encouraging users to sign up or log in -->
+        <div class="prompt">
+            <h1>A concept to bring your school essentials one step closer...</h1>
+            <div class="prompt_buttons">
+                <a href="{{ url_for('signup') }}">Sign Up</a>
+                <a href="{{ url_for('login') }}">Log In</a>
+            </div>
+        </div>
+{% endblock %}

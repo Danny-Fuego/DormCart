@@ -1,0 +1,57 @@
+{% extends "auth_layout.html" %}
+
+{% block body %}
+  <!-- Login card container -->
+  <div id="card">
+    <div class="welcome">Welcome back</div>
+
+    <!-- Error message shown when login fails -->
+    {% if error %}
+      <div class="error-box">
+        {{ error }}
+      </div>
+    {% endif %}
+
+    <!-- Login form -->
+    <form action="{{ url_for('login') }}" method="post">
+      <label for="email">Email Address</label>
+      <input
+        id="email"
+        type="email"
+        name="email"
+        autocomplete="email"
+        required
+        placeholder="Enter your email"
+      />
+
+      <label for="password">Password</label>
+      <input
+        id="password"
+        type="password"
+        name="password"
+        autocomplete="current-password"
+        required
+        minlength="6"
+        placeholder="Enter your password"
+      />
+
+      <!-- Remember-me option and password recovery link -->
+      <div id="options">
+        <label>
+          <input id="remember" type="checkbox" name="remember" /> Remember me
+        </label>
+        <span>
+          <a href="{{ url_for('forgot_password') }}" id="forgot"><b>Forgot password?</b></a>
+        </span>
+      </div>
+
+      <!-- Submit login -->
+      <button id="big-button" type="submit">Log in</button>
+
+      <!-- Link to signup page -->
+      <p id="signup">
+        <a href="{{ url_for('signup') }}">Don't have an account? <b>Register</b></a>
+      </p>
+    </form>
+  </div>
+{% endblock %}

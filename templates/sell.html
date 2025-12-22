@@ -1,0 +1,403 @@
+{% extends "layout.html" %}
+
+{% block extra_css %}
+    <style>
+        .sub{ 
+            margin:0 0 24px; 
+            color: var(--ink-inv); 
+        }
+
+        /* Main sell form wrapper */
+        form#sellForm{
+            display: grid; 
+            gap: 18px; 
+        }
+
+        /* White “card” sections to keep the form readable */
+        .section{ 
+            padding:16px; 
+            border:1px solid var(--border); 
+            border-radius: 16px; 
+            background:#fff; 
+        }
+
+        .section h2{ 
+            margin:0 0 12px; 
+            font-size: 1.1rem; 
+        }
+
+        /* Responsive row layout: stacks on small screens automatically */
+        .row{ 
+            display: grid; 
+            gap: 40px; 
+            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); 
+        }
+
+        label{ 
+            font-weight:600; 
+            display:block; 
+            margin-bottom:6px; 
+        }
+
+        /* Ensures padding/borders don’t break layout sizing */
+        .sell-form *, .sell-form *::before, .sell-form *::after {
+            box-sizing: border-box;
+        }
+
+        /* Shared input styling for the sell form */
+        #sellForm input[type="text"], 
+        #sellForm input[type="number"], 
+        #sellForm input[type="tel"], 
+        #sellForm input[type="email"], 
+        #sellForm select, 
+        #sellForm textarea{
+            width: 100%;
+            padding: 10px 12px; 
+            font: inherit;
+            color: inherit;
+            background: #fff; 
+            border: 1px solid #d1d5db;
+            border-radius: 12px;
+            outline: none;
+            transition: box-shadow .15s ease, border-color .15s ease, background .15s ease;
+        }
+
+        textarea{
+            min-height: 110px; 
+            resize: vertical;
+        }
+
+        /* Clear focus state so keyboard users can see where they are */
+        #sellForm input:focus, #sellForm select:focus, #sellForm textarea:focus{
+            border-color: var(--primary);
+            box-shadow: 0 0 0 4px var(--ring);
+            background: #fff;
+        }
+
+        /* File drop area (still using native file input underneath) */
+        .drop {
+            position: relative;
+            border: 1.5px dashed #cbd5e1;
+            border-radius: 16px;
+            background: #f8fafc;
+            padding: 16px; text-align: center;
+        }
+
+        /* Hide the real file input; clicking the label triggers it */
+        .drop input[type="file"]{
+            display:none
+        }
+
+        .drop .btn-up{
+            display: inline-block;
+            padding: 10px 14px;
+            border-radius: 10px; 
+            background: var(--primary);
+            color: #fff;
+            cursor: pointer;
+        }
+
+        .hint{
+            color: #6b7280;
+            font-size: .9rem;
+            margin-top: 8px;
+        }
+
+        /* Image preview thumbnails (client-side only) */
+        .preview{
+            margin-top: 12px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .thumb {
+            width: 120px;                
+            height: 120px;               
+            border-radius: 10px;
+            overflow: hidden;
+            background: rgba(255,255,255,0.2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            color: #333;
+            margin: 5px;
+            position: relative;
+        }
+        .thumb img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;           
+        }
+        .more {
+            width: 80px;
+            height: 120px;
+            display: flex;
+            align-items: center;
+        }
+
+        /* Chip-style radio buttons for fulfillment */
+        .choices{
+            display: flex; 
+            flex-wrap: wrap; 
+            gap: 12px;
+        }
+
+        .chip{
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 12px; 
+            border-radius: 999px;
+            background: #f3f4f6; 
+            border: 1px solid #e5e7eb;
+            cursor: pointer;
+        }
+
+        .chip input{
+            accent-color: var(--primary)
+        }
+
+        .submit-row{
+            display: flex;
+            gap: 12px;
+            justify-content: flex-end; 
+            align-items: center;
+        }
+
+        .btn{
+            border:0; 
+            border-radius:12px; 
+            padding:10px 16px; 
+            background: var(--primary); 
+            color:#fff; 
+            cursor:pointer; 
+            font-weight:600;
+            transition: background .15s ease, transform .1s ease;
+        }
+
+        .btn:hover{ 
+            background: var(--primary-600); 
+            transform: translateY(-1px); 
+        }
+
+        .muted{ 
+            color:#6b7280; 
+            font-size:.9rem; 
+        }
+
+        .inline{
+            display: flex; 
+            align-items: center;
+            gap: 10px;
+        }
+
+        .right{
+            text-align: right;
+        }
+    </style>
+{% endblock %}
+
+{% block body %}
+    <main class="page">
+        <h1 class="section-title">Sell an Item</h1>
+        <p class="sub">Fill out the details below. We’ll review your post before it goes live.</p>
+
+        {# Multipart form because photos are uploaded #}
+        <form id="sellForm" action="{{ url_for('sell')}}" method="POST" enctype="multipart/form-data">
+            <section class="section">
+                <h2>Item Details</h2>
+
+                <div class="row">
+                    <div>
+                        <label for="title">Title *</label>
+                        <input id="title" name="title" type="text" maxlength="80" required placeholder="e.g., LED Desk Lamp" />
+                    </div>
+
+                    <div>
+                        <label for="category">Category *</label>
+                        <select id="category" name="category" required>
+                            <option value="" selected disabled>Select a category</option>
+                            <option value="dorm">Dorm & Room</option>
+                            <option value="electronics">Electronics</option>
+                            <option value="books">Books</option>
+                            <option value="clothing">Clothing</option>
+                            <option value="kitchen">Kitchen</option>
+                            <option value="transport">Transport</option>
+                            <option value="hobbies">Hobbies</option>
+                            <option value="furniture">Furniture</option>
+                            <option value="misc">Misc</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div>
+                    <label for="description">Description *</label>
+                    <textarea id="description" name="description" maxlength="1000" required placeholder="Condition, what’s included, pickup notes, etc."></textarea>
+
+                    {# Simple character counter to help keep description concise #}
+                    <div class="right muted"><span id="descCount">0</span>/1000</div>
+                </div>
+            </section>
+
+            <section class="section">
+                <h2>Pricing & Condition</h2>
+
+                <div class="row">
+                    <div>
+                        <label for="price">Price (USD) *</label>
+                        <input id="price" name="price" type="number" min="0" step="0.01" required placeholder="e.g., 12.00" />
+                    </div>
+
+                    <div class="inline" style="align-self:end;">
+                        <input id="negotiable" name="negotiable" type="checkbox" />
+                        <label for="negotiable" class="muted" style="margin:0;">Price negotiable</label>
+                    </div>
+
+                    <div>
+                        <label for="condition">Condition *</label>
+                        <select id="condition" name="condition" required>
+                            <option value="" selected disabled>Select…</option>
+                            <option value="new">New</option>
+                            <option value="like-new">Like New</option>
+                            <option value="good">Good</option>
+                            <option value="fair">Fair</option>
+                        </select>
+                    </div>
+                </div>
+            </section>
+
+            <section class="section">
+                <h2>Photos</h2>
+
+                <div class="drop">
+                    {# Clicking this label opens the hidden file input #}
+                    <label class="btn-up" for="photos">Upload photos</label>
+                    <input id="photos" name="photos" type="file" accept="image/*" multiple />
+
+                    <div class="hint">Up to 8 images. First image becomes the thumbnail.</div>
+
+                    {# Preview is client-side only; backend still receives the real files #}
+                    <div id="preview" class="preview"></div>
+                </div>
+            </section>
+
+            <section class="section">
+                <h2>Fulfillment</h2>
+
+                {# Fulfillment method: one required choice #}
+                <div class="choices">
+                    <label class="chip"><input type="radio" name="fulfillment" value="pickup" required /> Pickup</label>
+                    <label class="chip"><input type="radio" name="fulfillment" value="delivery" /> Delivery</label>
+                    <label class="chip"><input type="radio" name="fulfillment" value="meetup" /> Meet-up</label>
+                </div>
+
+                <div class="row" style="margin-top:12px;">
+                    <div>
+                        <label for="location">University*</label>
+                        <input id="location" name="location" type="text" required placeholder="e.g., MTSU, Judd Hall" />
+                    </div>
+
+                    <div>
+                        <label for="contact">Contact Preference *</label>
+                        <select id="contact" name="contact" required>
+                            <option value="chat" selected>In-app chat</option>
+                            <option value="email">Email</option>
+                            <option value="phone">Phone</option>
+                        </select>
+                    </div>
+
+                    {# These appear only when the matching contact preference is selected #}
+                    <div id="phoneWrap" style="display:none;">
+                        <label for="phone">Phone (optional)</label>
+                        <input id="phone" name="phone" type="tel" placeholder="e.g., 555-123-4567" />
+                    </div>
+
+                    <div id="emailWrap" style="display:none;">
+                        <label for="email">Email (optional)</label>
+                        <input id="email" name="email" type="email" placeholder="e.g., johnsmith@email.com" />
+                    </div>
+                </div>
+            </section>
+
+            <section class="section">
+                <div class="inline">
+                    <input id="terms" name="terms" type="checkbox" required />
+                    <label for="terms">I confirm this item follows campus policy and DormCart rules.</label>
+                </div>
+            </section>
+
+            <div class="submit-row">
+                <span class="muted">Listings are reviewed before publishing.</span>
+                <button class="btn" type="submit">Submit for Review</button>
+            </div>
+        </form>
+    </main>
+
+    <script>
+        /* FORM LOGIC ---------------------------------------- */
+
+        // Live character counter for the description textarea
+        const desc = document.getElementById("description");
+        const descCount = document.getElementById("descCount");
+        if (desc && descCount){
+            const update = () => descCount.textContent = desc.value.length;
+            desc.addEventListener("input", update);
+            update();
+        }
+
+        // Toggle the optional phone/email fields based on contact preference
+        const contact = document.getElementById("contact");
+        const phoneWrap = document.getElementById("phoneWrap");
+        const emailWrap = document.getElementById("emailWrap");
+
+        if (contact && phoneWrap){
+            const togglePhone = () => phoneWrap.style.display = (contact.value === "phone") ? "" : "none";
+            contact.addEventListener("change", togglePhone);
+            togglePhone();
+        }
+
+        if (contact && emailWrap){
+            const toggleEmail = () => emailWrap.style.display = (contact.value === "email") ? "" : "none";
+            contact.addEventListener("change", toggleEmail);
+            toggleEmail();
+        }
+
+        // Photo previews (UI-only): show thumbnails for selected files
+        const input = document.getElementById("photos");
+        const preview = document.getElementById("preview");
+        if (input && preview){
+            input.addEventListener("change", () => {
+                preview.innerHTML = "";
+                const files = Array.from(input.files || []);
+
+                // UI shows up to 7 thumbnails; message indicates more
+                const limit = 7;
+
+                files.slice(0, limit).forEach(file => {
+                    const url = URL.createObjectURL(file);
+
+                    const box = document.createElement("div");
+                    box.className = "thumb";
+
+                    const img = document.createElement("img");
+                    img.src = url;
+
+                    // Clean up blob URLs to avoid memory leaks
+                    img.onload = () => URL.revokeObjectURL(url);
+
+                    box.appendChild(img);
+                    preview.appendChild(box);
+                });
+
+                if (files.length > limit){
+                    const more = document.createElement("div");
+                    more.className = "more";
+                    more.textContent = `+${files.length - limit} more`;
+                    preview.appendChild(more);
+                }
+            });
+        }
+    </script>
+{% endblock %}

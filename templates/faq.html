@@ -1,0 +1,81 @@
+{% extends "public_layout.html" %}
+
+{% block extra_css %}
+<style>
+  /* Center the FAQ container and keep it below the navbar */
+  main {
+    flex: 1;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    padding-top: calc(var(--navbar-h) + 60px);
+    padding-bottom: 2rem;
+  }
+
+  /* Main FAQ card */
+  main .container {
+    background-color: rgba(255,255,255,0.9);
+    max-width: 800px;
+    width: min(92vw, 800px);
+    padding: 2rem;
+    border-radius: 12px;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+  }
+
+  h1 {
+    margin-top: 0;
+    margin-bottom: 1.5rem;
+    font-size: 2rem;
+    text-align: center;
+  }
+
+  /* Individual FAQ items */
+  details {
+    margin-bottom: 1rem;
+    border: 1px solid #ddd;
+    padding: 1rem;
+    border-radius: 8px;
+    background: #fafafa;
+  }
+
+  summary {
+    font-weight: bold;
+    cursor: pointer;
+  }
+
+  /* Small screen tweaks */
+  @media (max-width: 720px) {
+    main {
+      padding-top: calc(var(--navbar-h) + 30px);
+    }
+
+    main .container {
+      padding: 1.5rem;
+    }
+  }
+</style>
+{% endblock %}
+
+{% block body %}
+<main>
+  <div class="container">
+    <h1>Frequently Asked Questions</h1>
+
+    <!-- Simple native HTML accordion using <details> -->
+    <details>
+      <summary>What is DormCart?</summary>
+      <p>DormCart is a student-to-student marketplace where you can buy, sell, or trade items safely within campus.</p>
+    </details>
+
+    <details>
+      <summary>Is it free?</summary>
+      <p>Yes, listing and browsing items is completely free for students.</p>
+    </details>
+
+    <details>
+      <summary>How do I ensure safety?</summary>
+      <p>Always meet in public campus spaces, and never share sensitive personal information.</p>
+    </details>
+  </div>
+</main>
+{% endblock %}

@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/png" href="{{ url_for('static', filename='images/logo.png') }}">
+
+    <!-- Global stylesheet shared across all pages -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+
+    {# Page-specific CSS can be injected by templates that extend this layout #}
+    {% block extra_css %}{% endblock %}
+
+    <title>{{ title }}</title>
+</head>
+<body>
+
+    <nav class="navbar">
+        <div class="navdiv">
+            <div class="logobox">
+                {# Brand links back to the public landing page #}
+                <a href="{{ url_for('landing') }}">
+                    <img src="{{ url_for('static', filename='images/Logo.png') }}" alt="DormCart Logo" class="logo">
+                </a>
+                <a href="{{ url_for('landing') }}" class="brand">DormCart</a>
+            </div>
+
+            {# Mobile menu toggle (handled in navbar.js) #}
+            <button class="menu-btn" aria-label="Toggle menu" aria-expanded="false">☰</button>
+
+            <!-- DESKTOP NAV -->
+            <div class="desktop-links">
+                <ul class="main">
+                    <li><a href="{{ url_for('about') }}">About</a></li>
+                    <li><a href="{{ url_for('contact') }}">Contact Us</a></li>
+                    <li><a href="{{ url_for('faq') }}">FAQs</a></li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- OVERLAY + DRAWER (MOBILE NAV) -->
+    <div class="overlay" id="navOverlay"></div>
+
+    <aside class="drawer" id="mobileDrawer">
+        <ul class="mobile-list">
+            <li><a href="{{ url_for('landing') }}">Home</a></li>
+            <li><a href="{{ url_for('about') }}">About</a></li>
+            <li><a href="{{ url_for('contact') }}">Contact Us</a></li>
+            <li><a href="{{ url_for('faq') }}">FAQs</a></li>
+        </ul>
+    </aside>
+
+    {# Flash messages (success/error/info) shown as toasts; flash.js handles dismissal #}
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            <div class="toast-wrap" id="toastWrap">
+                {% for category, msg in messages %}
+                    <div class="toast {{ category }}">
+                        <div class="toast-msg">{{ msg }}</div>
+                        <button class="toast-close" type="button" aria-label="Close">×</button>
+                    </div>
+                {% endfor %}
+            </div>
+        {% endif %}
+    {% endwith %}
+
+    {# Main page content goes here #}
+    {% block body %}
+    {% endblock %}
+
+    <!-- JS -->
+    <script src="{{ url_for('static', filename='js/navbar.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/flash.js') }}"></script>
+</body>
+</html>
