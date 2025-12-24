@@ -56,11 +56,12 @@ body::before {
 
 /* Stronger blur override (kept separate so it’s easy to tweak) */
 body::before{
-  filter: blur(6px);
+    filter: blur(6px);
 }
 
 /* =========================================================
    Authentication / Access pages
+   Used for login, signup, forgot password, reset password
    ========================================================= */
 #card{
   display:flex;
@@ -96,6 +97,7 @@ label{
   display:block;
   width:100%;
   margin-bottom:20px;
+  box-sizing:border-box;
   height:40px;
   border-radius:10px;
   border:1px solid #ccc;
@@ -104,7 +106,7 @@ label{
   background:#fff;
 }
 
-/* Auth page options row */
+/* Auth page options row (remember + forgot password) */
 #options{
   display:grid;
   grid-template-columns: 1fr auto;
@@ -131,8 +133,9 @@ label{
 }
 #big-button:hover{ background:var(--primary-600); }
 
-/* Auth links */
+/* Auth links (forgot + signup) */
 #options a, #signup a{
+  text-decoration:none;
   color:#0b1220;
 }
 #options a:hover, #signup a:hover{ color:#0a44c6; }
@@ -143,8 +146,44 @@ label{
 }
 
 /* =========================================================
-   ERROR BOX (FIXED FOR SMALL SCREENS)
+   Navbar
+   Fixed translucent bar with blur effect
    ========================================================= */
+.navbar {
+  position: fixed;
+  top: 10px;
+  left: 10px;
+  right: 10px;
+  height: var(--navbar-h);
+  z-index: 1000;
+  color: var(--ink-inv);
+  background: var(--bar-bg);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  padding: 0 15px;
+  border-radius: 30px;
+  display: flex;
+  align-items: center;
+  border: 1px solid rgba(255,255,255,0.28);
+}
+
+/* Navbar internal flex layout */
+.navdiv {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  width: 100%;
+}
+
+/* Logo + brand group */
+.logobox {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* Error message styling used on auth pages */
 .error-box {
   background-color: #f8d7da;
   color: #721c24;
@@ -156,10 +195,11 @@ label{
   border-radius: 10px;
   text-align: left;
 
-  width: min(92vw, 520px);
+  width: min(92vw, 520px);      /* better than % on small screens */
   max-width: 100%;
+  box-sizing: border-box;
 
-  /* KEY FIX */
+  /* KEY: allow long text / emails / passwords to wrap */
   overflow-wrap: anywhere;
   word-break: break-word;
   white-space: normal;
@@ -168,6 +208,7 @@ label{
   font-size: 0.95rem;
 }
 
+/* Make it slightly tighter on tiny phones */
 @media (max-width: 420px){
   .error-box{
     padding: 10px 12px;
@@ -175,51 +216,20 @@ label{
   }
 }
 
-/* =========================================================
-   Navbar
-   ========================================================= */
-.navbar {
-  position: fixed;
-  top: 10px;
-  left: 10px;
-  right: 10px;
-  height: var(--navbar-h);
-  z-index: 1000;
-  background: var(--bar-bg);
-  backdrop-filter: blur(8px);
-  padding: 0 15px;
-  border-radius: 30px;
-  display: flex;
-  align-items: center;
-  border: 1px solid rgba(255,255,255,0.28);
-}
-
-.navdiv {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 16px;
-  width: 100%;
-}
-
-.logobox {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
 .logo {
   width: 100px;
+  height: auto;
 }
 
 .brand {
   color: black;
   font-weight: 700;
   font-size: 22px;
+  text-decoration: none;
 }
 
 /* =========================================================
-   Desktop nav
+   Desktop nav links
    ========================================================= */
 .desktop-links {
   display: flex;
@@ -232,14 +242,18 @@ label{
   margin: 0;
   padding: 0;
   display: flex;
+  align-items: center;
   gap: 28px;
 }
 
-.desktop-links a {
+.desktop-links ul.main a,
+.desktop-links ul.icons a {
   color: black;
   font-weight: 700;
+  text-decoration: none;
 }
 
+/* Simple hover feedback for desktop links */
 .desktop-links a:hover {
   transform: translateY(-1px);
   text-shadow: 0 3px 5px rgba(0,0,0,0.3);
@@ -247,62 +261,92 @@ label{
 
 /* =========================================================
    Search bar
+   Desktop: compact pill input
+   Mobile: full-width inside drawer
    ========================================================= */
 .mobile-search{
   width: 100%;
   padding: 12px;
+  box-sizing: border-box;
 }
 
+.mobile-search input{
+  width: 100%;
+}
+
+/* Shared searchbar styling (works for desktop + mobile) */
 .searchbar {
   width: 250px;
+  max-width: 300px;
   background: rgba(255, 255, 255, 0.2);
   display: flex;
   align-items: center;
   border-radius: 60px;
   padding: 5px 20px;
+  backdrop-filter: blur(4px) saturate(180%);
 }
 
+/* Search icon image */
 .search_btn {
   width: 30px;
+  height: auto;
 }
 
+/* Input is transparent so the pill background shows through */
 .searchbar input {
   background: transparent;
   flex: 1;
   border: 0;
   outline: none;
   font-size: 15px;
+  color: black;
+}
+
+.searchbar button {
+  border: 0;
+  background: transparent;
+  cursor: pointer;
 }
 
 /* =========================================================
-   Icons
+   Icons (cart + profile) used in navbar
    ========================================================= */
 .cart {
+  width: auto;
   height: 40px;
+  display: block;
 }
 
 .profile {
+  width: auto;
   height: 80px;
+  display: block;
 }
 
 .cart_link,
 .profile_link {
   display: flex;
   align-items: center;
+  justify-content: center;
 }
 
 /* =========================================================
-   Mobile menu
+   Burger menu button (mobile only)
    ========================================================= */
 .menu-btn {
   display: none;
   border: 0;
   background: transparent;
+  color: black;
   font-size: 28px;
   cursor: pointer;
 }
 
-.overlay {
+/* =========================================================
+   Drawer + overlay (mobile menu)
+   ========================================================= */
+.overlay,
+.drawer-overlay {
   position: fixed;
   inset: 0;
   background: rgba(15,23,42,0.45);
@@ -312,7 +356,8 @@ label{
   z-index: 1400;
 }
 
-.overlay.show {
+.overlay.show,
+.drawer-overlay.show {
   opacity: 1;
   pointer-events: auto;
 }
@@ -322,51 +367,171 @@ label{
   top: 0;
   right: 0;
   width: 260px;
+  max-width: 80vw;
   height: 100vh;
   background: rgba(255,255,255,0.98);
+  box-shadow: -10px 0 25px rgba(15,23,42,0.35);
   transform: translateX(100%);
   transition: transform 0.23s ease-out;
   z-index: 1500;
-  padding: calc(var(--navbar-h) + 12px) 18px;
+  padding: calc(var(--navbar-h) + 12px) 18px 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
 }
 
 .drawer.open {
   transform: translateX(0);
 }
 
+/* Mobile nav links inside the drawer */
 ul.mobile-list {
   list-style: none;
   padding: 0;
+  margin: 0;
   display: flex;
   flex-direction: column;
   align-items: center;
+  justify-content: center;
   gap: 50px;
+  width: 100%;
+}
+
+ul.mobile-list li a {
+  display: block;
+  padding: 10px 4px;
+  font-size: 18px;
+  font-weight: 600;
+  color: black;
+  text-decoration: none;
+  border-radius: 8px;
+  transition: background 0.18s ease;
+}
+
+ul.mobile-list li a:hover {
+  background: rgba(15,23,42,0.06);
 }
 
 /* =========================================================
-   Responsive
+   Responsive breakpoints
+   Hide desktop links and show burger on smaller screens
    ========================================================= */
 @media (max-width: 900px) {
   .menu-btn {
     display: block;
   }
+
   .desktop-links {
     display: none;
   }
 }
 
 /* =========================================================
-   Page layout
+   Toast notifications (flash messages)
+   ========================================================= */
+.toast-wrap{
+  position: fixed;
+  top: calc(var(--navbar-h, 64px) + 14px);
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 9999;
+  width: min(560px, calc(100vw - 28px));
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.toast{
+  width: 100%;
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  gap: 10px;
+  align-items: center;
+  padding: clamp(10px, 2vw, 14px);
+  border-radius: 14px;
+  background: rgba(255,255,255,0.92);
+  border: 1px solid rgba(0,0,0,0.10);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  box-shadow: 0 12px 30px rgba(0,0,0,0.14);
+  animation: toastIn .18s ease-out;
+}
+
+/* Left accent bar indicates toast type */
+.toast::before{
+  content: "";
+  width: 10px;
+  height: 100%;
+  border-radius: 10px;
+  background: #64748b;
+}
+
+.toast-msg{
+  font-weight: 600;
+  color: #0b1220;
+  line-height: 1.25;
+  font-size: clamp(14px, 2vw, 15px);
+  overflow-wrap: anywhere;
+}
+
+.toast-close{
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+
+  font-size: clamp(18px, 2.6vw, 20px);
+  line-height: 1;
+
+  opacity: 0.7;
+  padding: 6px 8px;
+  border-radius: 10px;
+  transition: opacity .15s ease, background .15s ease;
+}
+
+.toast-close:hover{
+  opacity: 1;
+  background: rgba(0,0,0,0.06);
+}
+
+/* Status colors */
+.toast.success::before{ background: #22c55e; }
+.toast.error::before{ background: #ef4444; }
+.toast.info::before{ background: #3b82f6; }
+.toast.warning::before{ background: #f59e0b; }
+
+/* Used when JS animates toast out */
+.toast.hide{
+  opacity: 0;
+  transform: translateY(-6px);
+  transition: opacity .18s ease, transform .18s ease;
+}
+
+@keyframes toastIn{
+  from { opacity: 0; transform: translateY(-6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@media (max-width: 420px){
+  .toast-wrap{
+    top: calc(var(--navbar-h, 64px) + 10px);
+    width: calc(100vw - 18px);
+  }
+}
+
+/* =========================================================
+   Page Layout (shared container for protected pages)
    ========================================================= */
 main.page {
-  padding: 40px 20px;
-  width: min(92vw, 1200px);
-  margin: calc(var(--navbar-h) + 36px) auto;
-  background-color: rgba(255, 255, 255, 0.85);
-  border-radius: 30px;
+    padding: 40px 20px 40px;
+    width: min(92vw, 1200px);
+    margin: calc(var(--navbar-h) + 36px) auto 40px;
+    background-color: rgba(255, 255, 255, 0.85);
+    border-radius: clamp(12px, 2vw, 30px);
 }
 
 .section-title {
-  font-weight: 800;
-  font-size: 24px;
+    color: black;
+    font-weight: 800;
+    margin: 0 0 14px 6px;
+    font-size: 24px;
 }
