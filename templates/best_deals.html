@@ -100,8 +100,11 @@
         /* Responsive adjustments for smaller screens */
         @media (max-width: 720px) {
             main.page {
-                padding: 40px 20px 40px;
-                width: min(80vw, 800px); 
+                /* take almost full width on phones */
+                width: calc(100vw - 18px);
+                margin-left: auto;
+                margin-right: auto;
+                padding: 22px 14px 28px;
             }
 
             .section-title {
@@ -111,6 +114,11 @@
 
             .deal-section h2 {
                 text-align: center;
+            }
+
+            /* optional: make cards fit better on very small phones */
+            .grid{
+                grid-template-columns: 1fr;
             }
         }
     </style>
