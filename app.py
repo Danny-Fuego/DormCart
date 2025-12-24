@@ -115,7 +115,7 @@ def signup():
         return render_template(
             "login.html",
             title="Login",
-            error="Sign up is disabled for this demo. Use the provided demo accounts."
+            error="Sign up is disabled for this demo. Use the provided demo accounts. Email Address: johnsmith@example.com. Password: qwerty1234"
         )
 
     if request.method == "POST":
