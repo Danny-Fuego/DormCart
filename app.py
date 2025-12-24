@@ -106,8 +106,18 @@ def faq():
 
 # --------------------- Signup/Login ---------------------
 
+
+DEMO_MODE = True  # set False later if you want real signups
+
 @app.route("/signup", methods=["GET", "POST"])
 def signup():
+    if DEMO_MODE:
+        return render_template(
+            "login.html",
+            title="Login",
+            error="Sign up is disabled for this demo. Use the provided demo accounts."
+        )
+
     if request.method == "POST":
         first_name = request.form.get("first_name", "").strip()
         last_name  = request.form.get("last_name", "").strip()
@@ -121,10 +131,7 @@ def signup():
         if password != conpassword:
             return render_template("signup.html", title="Sign Up", error="Password and Confirm Password need to be the same!")
 
-        # Store a password hash (never store raw passwords)
         hash_ = generate_password_hash(password)
-
-        # Build a display name for the profile header
         display_name = f"{first_name} {last_name}".strip()
 
         conn = get_db()
@@ -145,8 +152,6 @@ def signup():
             return render_template("signup.html", title="Sign Up", error="An account with that email already exists.")
 
         conn.close()
-
-        # Login immediately after signup
         session["user_id"] = user_id
         return redirect(url_for("homepage"))
 
